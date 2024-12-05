@@ -5,7 +5,7 @@
         {
             "label": "create_bin_dir",
             "type": "shell",
-            //"command": "mkdir -p ${fileDirname}/bin",
+            "command": "mkdir -p ${fileDirname}/bin",
             "problemMatcher": []
         },
         {//这个大括号里是‘构建（build）’任务
@@ -13,14 +13,20 @@
             "type": "shell", //任务类型，process是vsc把预定义变量和转义解析后直接全部传给command；shell相当于先打开shell再输入命令，所以args还会经过shell再解析一遍
             "command": "g++", //编译命令，这里是gcc，编译c++的话换成g++
             "args": [    //方括号里是传给gcc命令的一系列参数，用于实现一些功能
-                "${file}", //指定要编译的是当前文件
+                //"${file}", //指定要编译的是当前文件
+                //"-g", "{workspaceFolder}\\sylar-rong\\*.cpp",
+                //"-I", "${workspaceFolder}\\sylar-rong",
+                //"-I", "sylar-rong",
+                //"${workspaceFolder}/bin/test",
+                "-I${workspaceFolder}/sylar-rong", // 包含头文件目录
+                "${workspaceFolder}/sylar-rong/*.cpp" ,// 添加所有源文件
                 "-o", //指定输出文件的路径和名称
                 "${fileDirname}/bin/${fileBasenameNoExtension}", //承接上一步的-o，让可执行文件输出到源码文件所在的文件夹下的bin文件夹内，并且让它的名字和源码文件相同
                 "-g", //生成和调试有关的信息
                 "-Wall", // 开启额外警告
                 "-static-libgcc",  // 静态链接libgcc
                 "-fexec-charset=utf-8", // 生成的程序使用utf-8编码
-                "-std=c11", // 语言标准，可根据自己的需要进行修改，写c++要换成c++的语言标准，比如c++11
+                "-std=c++11", // 语言标准，可根据自己的需要进行修改，写c++要换成c++的语言标准，比如c++11
             ],
             "group": {  //group表示‘组’，我们可以有很多的task，然后把他们放在一个‘组’里
                 "kind": "build",//表示这一组任务类型是构建
