@@ -14,6 +14,15 @@
 //#include "singleton.h"
 //#include "thread.h"
 
+#define SYLAR_LOG_LEVEL(logger, level) \
+    if(logger->getLevel() <= level)\
+        sylar::LogEventWrap(sylar::LogEvent::ptr (new sylar::LogEvent(logger, level, __FILE__,__LINE__, 0, 1, 2,time(0),"str"))).getSS()
+#define SYLAR_LOG_DEBUG(logger) SYLAR_LOG_LEVEL(logger, sylar::LogLevel::DEBUG)
+#define SYLAR_LOG_INFO(logger) SYLAR_LOG_LEVEL(logger, sylar::LogLevel::INFO)
+#define SYLAR_LOG_WARN(logger) SYLAR_LOG_LEVEL(logger, sylar::LogLevel::WARN)
+#define SYLAR_LOG_ERROR(logger) SYLAR_LOG_LEVEL(logger, sylar::LogLevel::ERROR)
+#define SYLAR_LOG_FATAL(logger) SYLAR_LOG_LEVEL(logger, sylar::LogLevel::FATAL)
+
 namespace sylar{
 
 class Logger;
@@ -76,20 +85,31 @@ private:
     LogLevel::Level m_level;     
 };
 
+//日志时间包装
+class LogEventWrap{
+public:
+    LogEventWrap(LogEvent::ptr event);
+    ~LogEventWrap();
+    LogEvent::ptr getEvent() const { return m_event; }
+    std::stringstream& getSS();
+private:
+    LogEvent::ptr m_event;
+};
+
 //日志输出格式
 class LogFormatter{
 public:
     using ptr = std::shared_ptr<LogFormatter>;
     LogFormatter(const std::string& pattern);
 
-    std::string format(std::shared_ptr<Logger> logger, LogLevel::Level level, LogEvent::ptr event);
-    std::ostream& format(std::ostream& ofs, std::shared_ptr<Logger> logger, LogLevel::Level level, LogEvent::ptr event);
+    std::string format(LogLevel::Level level, LogEvent::ptr event);
+    std::ostream& format(std::ostream& ofs, LogLevel::Level level, LogEvent::ptr event);
 public:
     class FormatItem{
     public:
         using ptr = std::shared_ptr<FormatItem>;
         virtual ~FormatItem(){};
-        virtual void format(std::ostream& os, std::shared_ptr<Logger> logger, LogLevel::Level level, LogEvent::ptr event) = 0;
+        virtual void format(std::ostream& os, LogLevel::Level level, LogEvent::ptr event) = 0;
     };
 
     void init();
@@ -113,6 +133,7 @@ public:
     void setFormatter(LogFormatter::ptr formatter);
     LogFormatter::ptr getFormatter();
     LogLevel::Level getLevel() const { return m_level; }
+    void setLevel(LogLevel::Level level) { m_level = level; }
 protected:
     LogLevel::Level m_level = LogLevel::DEBUG;
     bool m_hasFormatter = false;
