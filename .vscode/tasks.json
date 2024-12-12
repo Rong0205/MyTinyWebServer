@@ -18,8 +18,8 @@
                 //"-I", "${workspaceFolder}\\sylar-rong",
                 //"-I", "sylar-rong",
                 //"${workspaceFolder}/bin/test",
-                "-I${workspaceFolder}/sylar-rong", // 包含头文件目录
-                "${workspaceFolder}/sylar-rong/*.cpp" ,// 添加所有源文件
+                "-I${workspaceFolder}/TInyWebServer-rong/threadPool", // 包含头文件目录
+                "${workspaceFolder}/TInyWebServer-rong/threadPool/*.cpp" ,// 添加所有源文件
                 "-o", //指定输出文件的路径和名称
                 "${fileDirname}/bin/${fileBasenameNoExtension}", //承接上一步的-o，让可执行文件输出到源码文件所在的文件夹下的bin文件夹内，并且让它的名字和源码文件相同
                 "-g", //生成和调试有关的信息
@@ -27,6 +27,7 @@
                 "-static-libgcc",  // 静态链接libgcc
                 "-fexec-charset=utf-8", // 生成的程序使用utf-8编码
                 "-std=c++11", // 语言标准，可根据自己的需要进行修改，写c++要换成c++的语言标准，比如c++11
+
             ],
             "group": {  //group表示‘组’，我们可以有很多的task，然后把他们放在一个‘组’里
                 "kind": "build",//表示这一组任务类型是构建
