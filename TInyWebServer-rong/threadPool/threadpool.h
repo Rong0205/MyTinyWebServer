@@ -18,7 +18,7 @@ public:
                 while(true){
                     std::unique_lock<std::mutex> lock(m_queueMutex);
                     m_condition.wait(lock, [this]{return !m_tasks.empty() || m_isStopped;});
-                    if(m_isStopped){
+                    if(m_isStopped && m_tasks.empty()){
                         return;
                     }
                     std::function<void()> task = std::move(m_tasks.front());
