@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <sys/stat.h>         // mkdir
 #include "blockqueue.h"
-#include "../Buffer/Buffer.h"
+#include "buffer.h"
 
 class Log {
 public:
