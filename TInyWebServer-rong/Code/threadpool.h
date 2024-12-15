@@ -12,7 +12,25 @@
 
 class ThreadPool{
 public:
-    ThreadPool(int numThreads):m_isStopped(false){
+
+    static ThreadPool* getInstance(int numThreads){
+        static ThreadPool pool(numThreads);
+        return &pool;
+    }
+    
+    template<typename F, typename... Args>
+    void AddTask(F &&f, Args&&... args){
+        std::function<void()> task = 
+            std::bind(std::forward<F>(f), std::forward<Args>(args)...);
+        {
+            std::unique_lock<std::mutex> lock(m_queueMutex);
+            m_tasks.emplace(std::move(task));
+        }
+        m_condition.notify_one();
+    }
+private:
+
+ThreadPool(int numThreads):m_isStopped(false){
         for(int i = 0; i < numThreads; i++){
             m_threads.emplace_back([this]{
                 while(true){
@@ -41,17 +59,6 @@ public:
         }
     }
 
-    template<typename F, typename... Args>
-    void AddTask(F &&f, Args&&... args){
-        std::function<void()> task = 
-            std::bind(std::forward<F>(f), std::forward<Args>(args)...);
-        {
-            std::unique_lock<std::mutex> lock(m_queueMutex);
-            m_tasks.emplace(std::move(task));
-        }
-        m_condition.notify_one();
-    }
-private:
     std::vector<std::thread> m_threads;
     std::queue<std::function<void()>> m_tasks;
     std::mutex m_queueMutex;
