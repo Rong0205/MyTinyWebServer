@@ -42,14 +42,74 @@ ConnectionPool::ConnectionPool(std::string ip, unsigned short port, std::string 
   m_initConns(initConns), m_maxConns(maxConns), m_maxIdleTime(maxIdleTime),
   m_connectTimeout(connectTimeout)
 {
-    for(int i = 0; i< m_initConns; ++i){
+    for(unsigned int i = 0; i< m_initConns; ++i){
         Connection* conn = new Connection();
         conn->connect(m_ip, m_port, m_username, m_passwd, m_dbname);
+        conn->refreshAlive();//刷新空闲时间
         m_connectionQue.push(conn);
         m_connectionCnt++;
     }
+
+    //启动一个线程，作为连接的生产者
+    std::thread produce(std::bind(&ConnectionPool::produceConnTask, this));
+    produce.detach();
+    //启动一个定时线程，扫描超过maxIdleTime的连接，进行释放
+    std::thread scanner(std::bind(&ConnectionPool::scannerConnTask, this));
+    scanner.detach();
 }
 
-Connection* ConnectionPool::getConnection(){
 
+void ConnectionPool::produceConnTask(){
+    while(true){
+        std::unique_lock<std::mutex> lock(m_queMutex);
+        while (!m_connectionQue.empty())
+        {
+            m_cv.wait(lock);
+        }
+        if(static_cast<unsigned int>(m_connectionCnt) < m_maxConns){
+            Connection* conn = new Connection();
+            conn->connect(m_ip, m_port, m_username, m_passwd, m_dbname);
+            conn->refreshAlive();//刷新空闲时间
+            m_connectionQue.push(conn);
+            m_connectionCnt++;
+        }
+        m_cv.notify_one();
+    }
+}
+
+void ConnectionPool::scannerConnTask(){
+    while(true){
+        std::this_thread::sleep_for(std::chrono::seconds(m_maxIdleTime));
+        std::unique_lock<std::mutex> lock(m_queMutex);
+        while(static_cast<unsigned int>(m_connectionCnt) > m_initConns){
+            Connection* conn = m_connectionQue.front();
+            if(conn->getAlive() >= m_maxIdleTime*1000){
+                m_connectionQue.pop();
+                delete conn;
+                m_connectionCnt--;
+            }
+            else break;
+        }
+    }
+}
+std::shared_ptr<Connection> ConnectionPool::getConnection(){
+    std::unique_lock<std::mutex> lock(m_queMutex);
+    while(m_connectionQue.empty()){
+        if(std::cv_status::timeout == m_cv.wait_for(lock, std::chrono::milliseconds(m_connectTimeout))){
+        if(m_connectionQue.empty()) return nullptr;
+        //获取连接失败
+        }
+    }
+
+    std::shared_ptr<Connection> sp(m_connectionQue.front(),
+        [&](Connection* connPtr){
+            std::unique_lock<std::mutex> lock(m_queMutex);
+            connPtr->refreshAlive();
+            m_connectionQue.push(connPtr);
+        });
+    m_connectionQue.pop();
+    if(m_connectionQue.empty()){
+        m_cv.notify_all();
+    }
+    return sp;
 }

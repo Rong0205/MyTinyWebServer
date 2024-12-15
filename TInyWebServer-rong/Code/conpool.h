@@ -9,6 +9,10 @@
 #include <condition_variable>
 #include <atomic>
 #include <thread>
+#include <memory>
+#include <functional>
+#include <chrono>
+#include <ctime>
 
 class Connection{
 public:
@@ -22,9 +26,15 @@ public:
     bool update(std::string sql);
     //查询操作
     MYSQL_RES *query(std::string sql);
+    //刷新当前空闲时间
+    void refreshAlive(){m_alivetime = clock();}
+    //返回存活的时间
+    clock_t getAlive(){return clock() - m_alivetime;} 
 
 private:
     MYSQL *m_conn;
+    clock_t m_alivetime; //进入空闲状态后的存活时间
+
 };
 
 class ConnectionPool{
@@ -33,7 +43,7 @@ public:
                                              std::string passwd, std::string dbname, unsigned int initConns,
                                              unsigned int maxConns, unsigned int maxIdleTime, unsigned int connectTimeout);
 
-    Connection* getConnection();
+    std::shared_ptr<Connection> getConnection();
 
 
 private:
@@ -41,19 +51,23 @@ private:
                    std::string passwd, std::string dbname, unsigned int initConns,
                    unsigned int maxConns, unsigned int maxIdleTime, unsigned int connectTimeout);
 
+    void produceConnTask();
+    void scannerConnTask();
+
     std::string m_ip;
     unsigned short m_port;
     std::string m_username;
     std::string m_passwd;
     std::string m_dbname;
-    unsigned int m_maxConns;
     unsigned int m_initConns;
+    unsigned int m_maxConns;
     unsigned int m_maxIdleTime;
     unsigned int m_connectTimeout;
 
     std::queue<Connection*> m_connectionQue;
     std::mutex m_queMutex;
     std::atomic_int m_connectionCnt;
+    std::condition_variable m_cv;
 };
 
 #endif
