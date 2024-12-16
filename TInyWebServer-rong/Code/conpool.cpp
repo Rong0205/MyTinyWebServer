@@ -40,7 +40,7 @@ ConnectionPool::ConnectionPool(std::string ip, unsigned short port, std::string 
                      unsigned int maxConns, unsigned int maxIdleTime, unsigned int connectTimeout)
 : m_ip(ip), m_port(port), m_username(username), m_passwd(passwd), m_dbname(dbname),
   m_initConns(initConns), m_maxConns(maxConns), m_maxIdleTime(maxIdleTime),
-  m_connectTimeout(connectTimeout)
+  m_connectTimeout(connectTimeout), m_isClosed(false)
 {
     for(unsigned int i = 0; i< m_initConns; ++i){
         Connection* conn = new Connection();
@@ -51,21 +51,23 @@ ConnectionPool::ConnectionPool(std::string ip, unsigned short port, std::string 
     }
 
     //启动一个线程，作为连接的生产者
-    std::thread produce(std::bind(&ConnectionPool::produceConnTask, this));
-    produce.detach();
+    m_produceThread = std::thread(std::bind(&ConnectionPool::produceConnTask, this));
+    //produce.detach();
     //启动一个定时线程，扫描超过maxIdleTime的连接，进行释放
-    std::thread scanner(std::bind(&ConnectionPool::scannerConnTask, this));
-    scanner.detach();
+    //m_scannerThread = std::thread(std::bind(&ConnectionPool::scannerConnTask, this));
+    //scanner.detach();
 }
 
 
 void ConnectionPool::produceConnTask(){
     while(true){
         std::unique_lock<std::mutex> lock(m_queMutex);
-        while (!m_connectionQue.empty())
-        {
-            m_cv.wait(lock);
-        }
+        // while (!m_connectionQue.empty())
+        // {
+        //     m_cv.wait(lock);
+        // }
+        m_cv.wait(lock, [this]{return m_connectionQue.empty() || m_isClosed;});
+        if(m_isClosed) return;
         if(static_cast<unsigned int>(m_connectionCnt) < m_maxConns){
             Connection* conn = new Connection();
             conn->connect(m_ip, m_port, m_username, m_passwd, m_dbname);
@@ -79,6 +81,7 @@ void ConnectionPool::produceConnTask(){
 
 void ConnectionPool::scannerConnTask(){
     while(true){
+        if(m_isClosed) return;
         std::this_thread::sleep_for(std::chrono::seconds(m_maxIdleTime));
         std::unique_lock<std::mutex> lock(m_queMutex);
         while(static_cast<unsigned int>(m_connectionCnt) > m_initConns){
