@@ -1,5 +1,5 @@
 #ifndef CONPOOL_H
-#define CONPOLL_H
+#define CONPOOL_H
 
 #include <iostream>
 #include <mysql/mysql.h>
@@ -60,7 +60,14 @@ private:
         std::cout << "ConnPool join" << std::endl;
         m_produceThread.join();
         //m_scannerThread.join();
+        std::unique_lock<std::mutex> lock(m_queMutex);
         std::cout << "ConnPool join done" << std::endl;
+        while(!m_connectionQue.empty()){
+            auto conn = m_connectionQue.front();
+            m_connectionQue.pop();
+            delete conn;
+        }
+        std::cout << "delete all conn"<< std::endl;
     }
 
     void produceConnTask();

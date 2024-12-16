@@ -8,6 +8,7 @@ Connection::Connection(){
 }
 //释放数据库资源
 Connection::~Connection(){
+    std::cout<<"~Connection()"<<std::endl;
     if(m_conn != nullptr){
         mysql_close(m_conn);
     }
@@ -43,6 +44,7 @@ ConnectionPool::ConnectionPool(std::string ip, unsigned short port, std::string 
   m_connectTimeout(connectTimeout), m_isClosed(false)
 {
     for(unsigned int i = 0; i< m_initConns; ++i){
+        std::cout<<"ConnectionPool()"<<std::endl;
         Connection* conn = new Connection();
         conn->connect(m_ip, m_port, m_username, m_passwd, m_dbname);
         conn->refreshAlive();//刷新空闲时间
