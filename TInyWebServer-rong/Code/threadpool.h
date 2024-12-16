@@ -26,7 +26,7 @@ public:
             std::unique_lock<std::mutex> lock(m_queueMutex);
             m_tasks.emplace(std::move(task));
         }
-        m_condition.notify_one();
+        m_condition.notify_all();
     }
 private:
 
@@ -37,7 +37,7 @@ ThreadPool(int numThreads):m_isStopped(false){
                     std::unique_lock<std::mutex> lock(m_queueMutex);
                     m_condition.wait(lock, [this]{return !m_tasks.empty() || m_isStopped;});
                     if(m_isStopped && m_tasks.empty()){
-                        return;
+                        break;
                     }
                     std::function<void()> task = std::move(m_tasks.front());
                     m_tasks.pop();
@@ -55,7 +55,9 @@ ThreadPool(int numThreads):m_isStopped(false){
         }
         m_condition.notify_all();
         for(auto& thread : m_threads){
+            std::cout << "ThreadPool join" << std::endl;
             thread.join();
+            std::cout << "ThreadPool join done" << std::endl;
         }
     }
 
