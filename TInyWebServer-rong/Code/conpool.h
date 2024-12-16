@@ -45,30 +45,12 @@ public:
 
     std::shared_ptr<Connection> getConnection();
 
-
 private:
     ConnectionPool(std::string ip, unsigned short port, std::string username,
                    std::string passwd, std::string dbname, unsigned int initConns,
                    unsigned int maxConns, unsigned int maxIdleTime, unsigned int connectTimeout);
 
-    ~ConnectionPool(){
-        {
-            std::unique_lock<std::mutex> lock(m_queMutex);
-            m_isClosed = true;
-        }
-        m_cv.notify_all();
-        std::cout << "ConnPool join" << std::endl;
-        m_produceThread.join();
-        //m_scannerThread.join();
-        std::unique_lock<std::mutex> lock(m_queMutex);
-        std::cout << "ConnPool join done" << std::endl;
-        while(!m_connectionQue.empty()){
-            auto conn = m_connectionQue.front();
-            m_connectionQue.pop();
-            delete conn;
-        }
-        std::cout << "delete all conn"<< std::endl;
-    }
+    ~ConnectionPool();
 
     void produceConnTask();
     void scannerConnTask();
@@ -87,10 +69,6 @@ private:
     std::mutex m_queMutex;
     std::atomic_int m_connectionCnt;
     std::condition_variable m_cv;
-    bool m_isClosed;
-    //std::atomic_int m_freeConnCnt;
-    std::thread m_scannerThread;
-    std::thread m_produceThread;
 };
 
 #endif
