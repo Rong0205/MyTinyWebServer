@@ -13,7 +13,7 @@
 class ThreadPool{
 public:
 
-    static ThreadPool* getInstance(int numThreads){
+    static ThreadPool* getThreadPool(int numThreads){
         static ThreadPool pool(numThreads);
         return &pool;
     }
@@ -26,8 +26,28 @@ public:
             std::unique_lock<std::mutex> lock(m_queueMutex);
             m_tasks.emplace(std::move(task));
         }
-        m_condition.notify_one();
+        m_condition.notify_all();
     }
+
+private:
+    ThreadPool(int numThreads):m_isStopped(false){
+            for(int i = 0; i < numThreads; i++){
+
+                std::thread([this]{
+                    while(true){
+                        std::unique_lock<std::mutex> lock(m_queueMutex);
+                        m_condition.wait(lock, [this]{return !m_tasks.empty() || m_isStopped;});
+                        if(m_isStopped && m_tasks.empty()){
+                            break;
+                        }
+                        std::function<void()> task = std::move(m_tasks.front());
+                        m_tasks.pop();
+                        lock.unlock();
+                        task();
+                    }
+                }).detach();
+            }
+        }
 
     ~ThreadPool(){
         {
@@ -36,35 +56,9 @@ public:
             m_isStopped = true;
         }
         m_condition.notify_all();
-        for(auto& thread : m_threads){
-            std::cout << "ThreadPool join" << std::endl;
-            thread.join();
-            std::cout << "ThreadPool join done" << std::endl;
-        }
-    }
-private:
-
-ThreadPool(int numThreads):m_isStopped(false){
-        for(int i = 0; i < numThreads; i++){
-            m_threads.emplace_back([this]{
-                while(true){
-                    std::unique_lock<std::mutex> lock(m_queueMutex);
-                    m_condition.wait(lock, [this]{return !m_tasks.empty() || m_isStopped;});
-                    if(m_isStopped && m_tasks.empty()){
-                        break;
-                    }
-                    std::function<void()> task = std::move(m_tasks.front());
-                    m_tasks.pop();
-                    lock.unlock();
-                    task();
-                }
-            });
-        }
     }
 
-
-
-    std::vector<std::thread> m_threads;
+    //std::vector<std::thread> m_threads;
     std::queue<std::function<void()>> m_tasks;
     std::mutex m_queueMutex;
     std::condition_variable m_condition;
