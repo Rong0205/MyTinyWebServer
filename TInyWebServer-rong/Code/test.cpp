@@ -11,13 +11,15 @@ void testDatabaseQuery(ConnectionPool* connpool) {
 }
 int main(){
 
-    ThreadPool* thPool = ThreadPool::getInstance(6);
     ConnectionPool* connPool = ConnectionPool::getConnectionPool("127.0.0.1", 3306, "root", "20010205", "test", 10, 2048, 10, 100);
+    ThreadPool* thPool = ThreadPool::getThreadPool(5);
     
     
     for(int i = 0; i<10; i++){
         thPool->AddTask(testDatabaseQuery, connPool);
     }
+
+    getchar();
     //thPool->~ThreadPool();
     //~ConnectionPool();
 
