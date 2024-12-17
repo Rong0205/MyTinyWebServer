@@ -25,7 +25,7 @@ bool Connection::update(std::string sql){
 //查询操作
 MYSQL_RES* Connection::query(std::string sql){
     if(mysql_query(m_conn, sql.c_str())) return nullptr;
-    return mysql_use_result(m_conn);
+    return mysql_store_result(m_conn);
 }
 
 /////////////////////////ConnectionPool////////////////////////////
