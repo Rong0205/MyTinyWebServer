@@ -15,7 +15,7 @@ void HttpRequest::Init() {
 }
 
 bool HttpRequest::ParseRequestLine_(const std::string& line){
-    std::regex pattern("^([^ ]*) +([^ ]*) +([^ ]*)$");
+    std::regex pattern("^([^ ]*) ([^ ]*) HTTP/([^ ]*)$");
     std::smatch subMatch;
 
     if(std::regex_match(line, subMatch, pattern)){
@@ -129,13 +129,18 @@ void HttpRequest::ParsePost_(ConnectionPool* pool){
 }
 
 bool HttpRequest::parse(Buffer& buff, ConnectionPool* pool){
+    LOG_DEBUG("enter parse");
     const char CRLF[] = "\r\n";
-    if(buff.ReadableBytes() <= 0) return false;
+    if(buff.ReadableBytes() <= 0){
+        LOG_ERROR("ReadableBytes <= 0");
+        return false;
+    }
 
     while(buff.ReadableBytes() && state_ != FINISH){
         const char* lineEnd = std::search(buff.Peek(), buff.BeginWriteConst(), CRLF, CRLF + 2);
 
         std:: string line(buff.Peek(), lineEnd);
+        std::cout<<line<<std::endl;
         switch(state_){
             case REQUEST_LINE:
                 if(!ParseRequestLine_(line))
@@ -159,7 +164,7 @@ bool HttpRequest::parse(Buffer& buff, ConnectionPool* pool){
         if(lineEnd == buff.BeginWrite()) {break;}
         buff.RetrieveUntil(lineEnd + 2);
     }
-    //日志输出method,path,version
+    LOG_DEBUG("[%s], [%s], [%s]", method_.c_str(), path_.c_str(), version_.c_str());
     return true;
 }
 
