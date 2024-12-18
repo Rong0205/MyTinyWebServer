@@ -25,27 +25,29 @@ public:
     ~HttpRequest() = default;
 
     void Init();
-    //bool parse(Buffer& buff);   
+    bool IsKeepAlive() const;
+    bool parse(Buffer& buff, ConnectionPool* pool);   
 
-    //std::string path() const;
-    //std::string& path();
-    //std::string method() const;
-    //std::string version() const;
-    //std::string GetPost(const std::string& key) const;
-    //std::string GetPost(const char* key) const;
+    std::string getPath() const;
+    std::string& getPath();
+    std::string getMethod() const;
+    std::string getVersion() const;
+    std::string getPost(const std::string& key) const;
+    std::string getPost(const char* key) const;
 
-    //bool IsKeepAlive() const;
     static bool UserVerifyLogin(const std::string& name, const std::string& pwd, ConnectionPool* pool);  // 用户验证
-    static bool UserVerifyRegister(const std::string& name, const std::string& pwd, ConnectionPool* pool);  // 用户验证
+    static bool UserVerifyRegister(const std::string& name, const std::string& pwd, ConnectionPool* pool);  // 用户验证    
+
 
 private:
-    //bool ParseRequestLine_(const std::string& line);    // 处理请求行
-    //void ParseHeader_(const std::string& line);         // 处理请求头
-    //void ParseBody_(const std::string& line);           // 处理请求体
+    bool ParseRequestLine_(const std::string& line);    // 处理请求行
+    void ParseHeader_(const std::string& line);         // 处理请求头
+    void ParseBody_(const std::string& line, ConnectionPool* pool);           // 处理请求体
 
-    //void ParsePath_();                                  // 处理请求路径
-    //void ParsePost_();                                  // 处理Post事件
-    //void ParseFromUrlencoded_();                        // 从url种解析编码
+    void ParsePath_();                                  // 处理请求路径
+    void ParsePost_(ConnectionPool* pool);                                  // 处理Post事件
+    void ParseFromUrlencoded_();                        // 从url种解析编码
+
 
 
 
@@ -56,7 +58,7 @@ private:
 
     static const std::unordered_set<std::string> DEFAULT_HTML;
     static const std::unordered_map<std::string, int> DEFAULT_HTML_TAG;
-    //static int ConverHex(char ch);  // 16进制转换为10进制
+    static int ConverHex(char ch);  // 16进制转换为10进制
 };
 
 #endif
