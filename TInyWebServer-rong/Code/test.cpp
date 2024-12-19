@@ -1,6 +1,7 @@
 #include "conpool.h"
 #include "threadpool.h"
 #include "httprequest.h"
+#include "httpresponse.h"
 
 int main(){
 
@@ -20,6 +21,17 @@ int main(){
 
     HttpRequest request;
     request.parse(buff, connPool);
+
+    Buffer buff_response(2048);
+    HttpResponse response;
+    std::string path = "/qqq.txt";
+    std::string src = "/home/rong/MyTinyWebServer/TInyWebServer-rong/resources";
+    response.Init(src, path, true, 200);
+
+    LOG_DEBUG("asd");
+    response.MakeResponse(buff_response);
+    std::string res = buff_response.RetrieveAllToStr();
+    std::cout << res << std::endl;
 
 
 
