@@ -12,13 +12,15 @@ int main(){
     Log::Instance()->init(level, "./testlog", ".log", 0);
 
     
-    char testStr[] = "GET / HTTP/1.1\r\nHost: 127.0.0.1:8080\r\nConnection: keep-alive\r\nCache-Control: max-age=0\r\nUpgrade-Insecure-Requests: 1\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36(KHTML, like Gecko) Chrome/80.0.398";
+    char testStr[] = 
+    "POST /login.html HTTP/1.1\r\nHost: example.com\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=lisi&password=12345";
     buff.Append(testStr, sizeof(testStr));
     std::cout << sizeof(testStr) << std::endl;
     std::cout << buff.ReadableBytes() << std::endl;
 
     HttpRequest request;
     request.parse(buff, connPool);
+
 
 
 

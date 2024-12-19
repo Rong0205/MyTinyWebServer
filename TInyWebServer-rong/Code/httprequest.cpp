@@ -31,9 +31,9 @@ bool HttpRequest::ParseRequestLine_(const std::string& line){
 
 void HttpRequest::ParseHeader_(const std::string& line){
     std::regex pattern("^([^:]*): ?(.*)$");
-    std::smatch subMatch;
-    if(std::regex_match(line, subMatch, pattern)){
-        header_[subMatch[1]] = subMatch[2];
+    std::smatch Match;
+    if(std::regex_match(line, Match, pattern)){
+        header_[Match[1]] = Match[2];
     }
     else{
         state_ = BODY;
@@ -75,7 +75,6 @@ void HttpRequest::ParsePath_(){
 
 void HttpRequest::ParseFromUrlencoded_(){
     if(body_.size() == 0){ return; }
-
     std::string key, value;
     int num = 0;
     int n = body_.size();
@@ -102,6 +101,12 @@ void HttpRequest::ParseFromUrlencoded_(){
                 post_[key] = value;
                 LOG_DEBUG("post[%s] = %s", key.c_str(), value.c_str());
                 break;
+            case '\0':
+                value = body_.substr(j, i-j);
+                j = i+1;
+                post_[key] = value;
+                LOG_DEBUG("post[%s] = %s", key.c_str(), value.c_str());
+                break;
             default:
                 break;
         }
@@ -109,11 +114,12 @@ void HttpRequest::ParseFromUrlencoded_(){
     if(post_.count(key) == 0 && j<i){
         value = body_.substr(j, i-j);
         post_[key] = value;
+        LOG_DEBUG("post[%s] = %s", key.c_str(), value.c_str());
     }
 }
 
 void HttpRequest::ParsePost_(ConnectionPool* pool){
-    if(method_ == "POST" && header_["Content-Type"] == "application/x-www-from-urlencoded"){
+    if(method_ == "POST" && header_["Content-Type"] == "application/x-www-form-urlencoded"){
         ParseFromUrlencoded_();
         if(DEFAULT_HTML_TAG.count(path_)){
             int tag = DEFAULT_HTML_TAG.find(path_)->second;
@@ -126,6 +132,7 @@ void HttpRequest::ParsePost_(ConnectionPool* pool){
             else path_ = "/error.html";
         }
     }
+    else LOG_DEBUG("ParsePost NOT IN IF");
 }
 
 bool HttpRequest::parse(Buffer& buff, ConnectionPool* pool){
@@ -140,7 +147,7 @@ bool HttpRequest::parse(Buffer& buff, ConnectionPool* pool){
         const char* lineEnd = std::search(buff.Peek(), buff.BeginWriteConst(), CRLF, CRLF + 2);
 
         std:: string line(buff.Peek(), lineEnd);
-        std::cout<<line<<std::endl;
+        //std::cout<<line<<std::endl;
         switch(state_){
             case REQUEST_LINE:
                 if(!ParseRequestLine_(line))
@@ -171,7 +178,6 @@ bool HttpRequest::parse(Buffer& buff, ConnectionPool* pool){
 
 bool HttpRequest::UserVerifyLogin(const std::string& name, const std::string& pwd, ConnectionPool* pool){
     if (name == "" || pwd == "") return false;
-
     std::shared_ptr<Connection> sqlCon = pool->getConnection();
 
     bool verify_flag = false;
