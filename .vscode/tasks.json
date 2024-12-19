@@ -5,7 +5,7 @@
         {
             "label": "create_bin_dir",
             "type": "shell",
-            "command": "mkdir -p ${fileDirname}/bin",
+            "command": "mkdir -p ${fileDirname}/../bin",
             "problemMatcher": []
         },
         {//这个大括号里是‘构建（build）’任务
@@ -21,7 +21,7 @@
                 "-I${workspaceFolder}/TInyWebServer-rong/Code", // 包含头文件目录
                 "${workspaceFolder}/TInyWebServer-rong/Code/*.cpp" ,// 添加所有源文件
                 "-o", //指定输出文件的路径和名称
-                "${fileDirname}/bin/${fileBasenameNoExtension}", //承接上一步的-o，让可执行文件输出到源码文件所在的文件夹下的bin文件夹内，并且让它的名字和源码文件相同
+                "${fileDirname}/../bin/${fileBasenameNoExtension}", //承接上一步的-o，让可执行文件输出到源码文件所在的文件夹下的bin文件夹内，并且让它的名字和源码文件相同
                 "-g", //生成和调试有关的信息
                 "-Wall", // 开启额外警告
                 "-static-libgcc",  // 静态链接libgcc
@@ -48,7 +48,7 @@
             "label": "run", 
             "type": "shell", 
             "dependsOn": "build", //任务依赖，因为要运行必须先构建，所以执行这个任务前必须先执行build任务，
-            "command": "${fileDirname}/bin/${fileBasenameNoExtension}", //linux下编译出的文件不需要.exe后缀
+            "command": "${fileDirname}/../bin/${fileBasenameNoExtension}", //linux下编译出的文件不需要.exe后缀
             "group": {
                 "kind": "test", //这一组是‘测试’组，将run任务放在test组里方便我们用快捷键执行
                 "isDefault": true
