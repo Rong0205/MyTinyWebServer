@@ -1,0 +1,7 @@
+2024-12-19 20:27:00.056308 [debug]: enter parse
+2024-12-19 20:27:00.057813 [debug]: post[username] = lisi
+2024-12-19 20:27:00.057844 [debug]: post[password] = 12345
+2024-12-19 20:27:00.057858 [debug]: tag:1
+2024-12-19 20:27:00.058177 [debug]: UserVerifyLogin success!!
+2024-12-19 20:27:00.058196 [debug]: body:username=lisi&password=12345, len:29
+2024-12-19 20:27:00.058203 [debug]: [POST], [/welcome.html], [1.1]

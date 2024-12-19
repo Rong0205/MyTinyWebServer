@@ -9,7 +9,7 @@ int main(){
     auto conn = connPool->getConnection();
     //int cnt = 0; 
     int level = 0;
-    Log::Instance()->init(level, "./testlog", ".log", 0);
+    Log::Instance()->init(level, "../testlog", ".log", 0);
 
     
     char testStr[] = 
