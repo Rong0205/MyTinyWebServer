@@ -1,0 +1,12 @@
+2024-12-20 20:31:12.518364 [debug]: enter parse
+2024-12-20 20:31:12.520599 [debug]: post[username] = lisi
+2024-12-20 20:31:12.520637 [debug]: post[password] = 12345
+2024-12-20 20:31:12.520654 [debug]: tag:1
+2024-12-20 20:31:12.537424 [debug]: UserVerifyLogin success!!
+2024-12-20 20:31:12.537494 [debug]: body:username=lisi&password=12345, len:29
+2024-12-20 20:31:12.537512 [debug]: [POST], [/welcome.html], [1.1]
+2024-12-20 20:31:12.537531 [debug]: asd
+2024-12-20 20:31:12.537551 [debug]: code: 200
+2024-12-20 20:31:12.537566 [debug]: Can not reach 200
+2024-12-20 20:31:12.537605 [debug]: srcFD: 14
+2024-12-20 20:31:12.537620 [debug]: file path /home/rong/MyTinyWebServer/TInyWebServer-rong/resources/qqq.txt
