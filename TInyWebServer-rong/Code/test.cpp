@@ -2,6 +2,7 @@
 #include "threadpool.h"
 #include "httprequest.h"
 #include "httpresponse.h"
+#include "httpconn.h"
 
 int main(){
 
@@ -32,10 +33,5 @@ int main(){
     response.MakeResponse(buff_response);
     std::string res = buff_response.RetrieveAllToStr();
     std::cout << res << std::endl;
-
-
-
-
-    
     return 0;
 }
