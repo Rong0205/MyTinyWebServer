@@ -85,8 +85,9 @@ size_t HttpResponse::getFileLen() const {
 }
 
 void HttpResponse::ErrorHtml_() {
-    if(CODE_PATH.count(code_) == 1) {
-        path_ = CODE_PATH.find(code_)->second;
+    auto it = CODE_PATH.find(code_);
+    if(it != CODE_PATH.end()) {
+        path_ = it->second;
         stat((srcDir_ + path_).data(), &mmFileStat_);
     }
     else{
@@ -96,8 +97,9 @@ void HttpResponse::ErrorHtml_() {
 
 void HttpResponse::AddStateLine_(Buffer& buff) {
     std::string status;
-    if(CODE_STATUS.count(code_) == 1) {
-        status = CODE_STATUS.find(code_)->second;
+    auto it = CODE_STATUS.find(code_);
+    if(it != CODE_STATUS.end()) {
+        status = it->second;
     }
     else {
         code_ = 400;
@@ -153,8 +155,9 @@ std::string HttpResponse::GetFileType_() {
         return "text/plain";
     }
     std::string suffix = path_.substr(idx);
-    if(SUFFIX_TYPE.count(suffix) == 1) {
-        return SUFFIX_TYPE.find(suffix)->second;
+    auto it = SUFFIX_TYPE.find(suffix);
+    if(it != SUFFIX_TYPE.end()) {
+        return it->second;
     }
     return "text/plain";
 }
@@ -165,8 +168,10 @@ void HttpResponse::ErrorContent(Buffer& buff, std::string message)
     std::string status;
     body += "<html><title>Error</title>";
     body += "<body bgcolor=\"ffffff\">";
-    if(CODE_STATUS.count(code_) == 1) {
-        status = CODE_STATUS.find(code_)->second;
+
+    auto it = CODE_STATUS.find(code_);
+    if(it != CODE_STATUS.end()) {
+        status = it->second;
     } else {
         status = "Bad Request";
     }
