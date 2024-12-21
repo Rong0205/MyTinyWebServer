@@ -39,17 +39,16 @@ private:
 
 class ConnectionPool{
 public:
-    static ConnectionPool* getConnectionPool(std::string ip, unsigned short port, std::string username,
-                                             std::string passwd, std::string dbname, unsigned int initConns,
-                                             unsigned int maxConns, unsigned int maxIdleTime, unsigned int connectTimeout);
+    static ConnectionPool* getConnectionPool();
 
     std::shared_ptr<Connection> getConnection();
 
-private:
-    ConnectionPool(std::string ip, unsigned short port, std::string username,
-                   std::string passwd, std::string dbname, unsigned int initConns,
-                   unsigned int maxConns, unsigned int maxIdleTime, unsigned int connectTimeout);
+    void init(std::string ip, unsigned short port, std::string username,
+              std::string passwd, std::string dbname, unsigned int initConns,
+              unsigned int maxConns, unsigned int maxIdleTime, unsigned int connectTimeout);
 
+private:
+    ConnectionPool();
     ~ConnectionPool();
 
     void produceConnTask();

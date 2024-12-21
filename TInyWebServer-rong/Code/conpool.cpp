@@ -29,20 +29,28 @@ MYSQL_RES* Connection::query(std::string sql){
 }
 
 /////////////////////////ConnectionPool////////////////////////////
-ConnectionPool* ConnectionPool::getConnectionPool(std::string ip, unsigned short port, std::string username,
-                     std::string passwd, std::string dbname, unsigned int initConns,
-                     unsigned int maxConns, unsigned int maxIdleTime, unsigned int connectTimeout){
-    static ConnectionPool pool(ip, port, username, passwd, dbname, initConns, maxConns, maxIdleTime, connectTimeout);
+ConnectionPool* ConnectionPool::getConnectionPool(){
+    static ConnectionPool pool;
     return &pool;
 }
 
-ConnectionPool::ConnectionPool(std::string ip, unsigned short port, std::string username,
-                     std::string passwd, std::string dbname, unsigned int initConns,
-                     unsigned int maxConns, unsigned int maxIdleTime, unsigned int connectTimeout)
-: m_ip(ip), m_port(port), m_username(username), m_passwd(passwd), m_dbname(dbname),
-  m_initConns(initConns), m_maxConns(maxConns), m_maxIdleTime(maxIdleTime),
-  m_connectTimeout(connectTimeout)
+ConnectionPool::ConnectionPool(){
+    
+}
+
+void ConnectionPool::init(std::string ip, unsigned short port, std::string username,
+            std::string passwd, std::string dbname, unsigned int initConns,
+            unsigned int maxConns, unsigned int maxIdleTime, unsigned int connectTimeout)
 {
+    m_ip = ip;
+    m_port = port;
+    m_username = username;
+    m_passwd = passwd;
+    m_dbname = dbname;
+    m_initConns = initConns;
+    m_maxConns = maxConns;
+    m_maxIdleTime = maxIdleTime;
+    m_connectTimeout = connectTimeout;
     for(unsigned int i = 0; i< m_initConns; ++i){
         //std::cout<<"Connection()"<<std::endl;
         Connection* conn = new Connection();
