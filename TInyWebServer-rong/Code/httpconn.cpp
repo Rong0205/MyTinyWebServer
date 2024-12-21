@@ -96,7 +96,7 @@ bool HttpConn::process(ConnectionPool* pool) {
         LOG_ERROR("Read Buff has no Date!");
         return false;
     }
-    if(request_.parse(readBuff_, pool)) {    // 解析成功
+    if(request_.parse(readBuff_)) {    // 解析成功
         LOG_DEBUG("%s", request_.getPath().c_str());
         response_.Init(srcDir, request_.getPath(), request_.IsKeepAlive(), 200);
     } else {
