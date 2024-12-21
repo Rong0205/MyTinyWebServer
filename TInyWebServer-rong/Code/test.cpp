@@ -3,17 +3,20 @@
 #include "httprequest.h"
 #include "httpresponse.h"
 #include "httpconn.h"
+#include "epoller.h"
 
 int main(){
 
     Buffer buff(1024);
-    ConnectionPool* connPool = ConnectionPool::getConnectionPool("127.0.0.1", 3306, "root", "20010205", "test", 10, 2048, 10, 100);
+    auto connPool = ConnectionPool::getConnectionPool();
+    connPool->init("127.0.0.1", 3306, "root", "20010205", "test", 10, 2048, 10, 100);
+    //auto threadPool = ThreadPool::getThreadPool(4);
     auto conn = connPool->getConnection();
+    conn->update("insert into users(username, password) values('rong', '123456')");
     //int cnt = 0; 
     int level = 0;
     Log::Instance()->init(level, "../testlog", ".log", 0);
 
-    
     char testStr[] = 
     "POST /login.html HTTP/1.1\r\nHost: example.com\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=lisi&password=12345";
     buff.Append(testStr, sizeof(testStr));
@@ -21,17 +24,10 @@ int main(){
     std::cout << buff.ReadableBytes() << std::endl;
 
     HttpRequest request;
-    request.parse(buff, connPool);
+    request.parse(buff);
 
-    Buffer buff_response(2048);
-    HttpResponse response;
-    std::string path = "/qqq.txt";
-    std::string src = "/home/rong/MyTinyWebServer/TInyWebServer-rong/resources";
-    response.Init(src, path, true, 200);
 
-    LOG_DEBUG("asd");
-    response.MakeResponse(buff_response);
-    std::string res = buff_response.RetrieveAllToStr();
-    std::cout << res << std::endl;
+    
+
     return 0;
 }
