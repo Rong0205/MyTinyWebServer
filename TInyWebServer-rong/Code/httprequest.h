@@ -26,7 +26,7 @@ public:
 
     void Init();
     bool IsKeepAlive() const;
-    bool parse(Buffer& buff, ConnectionPool* pool);   
+    bool parse(Buffer& buff);   
 
     std::string getPath() const;
     std::string& getPath();
@@ -35,17 +35,17 @@ public:
     std::string getPost(const std::string& key) const;
     std::string getPost(const char* key) const;
 
-    static bool UserVerifyLogin(const std::string& name, const std::string& pwd, ConnectionPool* pool);  // 用户验证
-    static bool UserVerifyRegister(const std::string& name, const std::string& pwd, ConnectionPool* pool);  // 用户验证    
+    static bool UserVerifyLogin(const std::string& name, const std::string& pwd);  // 用户验证
+    static bool UserVerifyRegister(const std::string& name, const std::string& pwd);  // 用户验证    
 
 
 private:
     bool ParseRequestLine_(const std::string& line);    // 处理请求行
     void ParseHeader_(const std::string& line);         // 处理请求头
-    void ParseBody_(const std::string& line, ConnectionPool* pool);           // 处理请求体
+    void ParseBody_(const std::string& line);           // 处理请求体
 
     void ParsePath_();                                  // 处理请求路径
-    void ParsePost_(ConnectionPool* pool);                                  // 处理Post事件
+    void ParsePost_();                                  // 处理Post事件
     void ParseFromUrlencoded_();                        // 从url种解析编码
 
 

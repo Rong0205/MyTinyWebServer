@@ -39,9 +39,9 @@ void HttpRequest::ParseHeader_(const std::string& line){
         state_ = BODY;
     }
 }
-void HttpRequest::ParseBody_(const std::string& line, ConnectionPool* pool){
+void HttpRequest::ParseBody_(const std::string& line){
     body_ = line;
-    ParsePost_(pool);
+    ParsePost_();
     state_ = FINISH;
     LOG_DEBUG("body:%s, len:%d", body_.c_str(), body_.size());
 }
@@ -118,15 +118,15 @@ void HttpRequest::ParseFromUrlencoded_(){
     }
 }
 
-void HttpRequest::ParsePost_(ConnectionPool* pool){
+void HttpRequest::ParsePost_(){
     if(method_ == "POST" && header_["Content-Type"] == "application/x-www-form-urlencoded"){
         ParseFromUrlencoded_();
         if(DEFAULT_HTML_TAG.count(path_)){
             int tag = DEFAULT_HTML_TAG.find(path_)->second;
             LOG_DEBUG("tag:%d", tag);
             int verify_flag = false;
-            if(tag == 1) verify_flag = UserVerifyLogin(post_["username"], post_["password"], pool);
-            else verify_flag = UserVerifyRegister(post_["username"], post_["password"], pool);
+            if(tag == 1) verify_flag = UserVerifyLogin(post_["username"], post_["password"]);
+            else verify_flag = UserVerifyRegister(post_["username"], post_["password"]);
 
             if(verify_flag) path_ = "/welcome.html";
             else path_ = "/error.html";
@@ -135,7 +135,7 @@ void HttpRequest::ParsePost_(ConnectionPool* pool){
     else LOG_DEBUG("ParsePost NOT IN IF");
 }
 
-bool HttpRequest::parse(Buffer& buff, ConnectionPool* pool){
+bool HttpRequest::parse(Buffer& buff){
     LOG_DEBUG("enter parse");
     const char CRLF[] = "\r\n";
     if(buff.ReadableBytes() <= 0){
@@ -163,7 +163,7 @@ bool HttpRequest::parse(Buffer& buff, ConnectionPool* pool){
                 }
                 break;
             case BODY:
-                ParseBody_(line, pool);
+                ParseBody_(line);
                 break;
             default:
                 break;
@@ -176,8 +176,10 @@ bool HttpRequest::parse(Buffer& buff, ConnectionPool* pool){
 }
 
 
-bool HttpRequest::UserVerifyLogin(const std::string& name, const std::string& pwd, ConnectionPool* pool){
+bool HttpRequest::UserVerifyLogin(const std::string& name, const std::string& pwd){
     if (name == "" || pwd == "") return false;
+
+    auto pool = ConnectionPool::getConnectionPool();
     std::shared_ptr<Connection> sqlCon = pool->getConnection();
 
     bool verify_flag = false;
@@ -214,9 +216,10 @@ bool HttpRequest::UserVerifyLogin(const std::string& name, const std::string& pw
 
 }
 
-bool HttpRequest::UserVerifyRegister(const std::string& name, const std::string& pwd, ConnectionPool* pool){
+bool HttpRequest::UserVerifyRegister(const std::string& name, const std::string& pwd){
     if (name == "" || pwd == "") return false;
 
+    auto pool = ConnectionPool::getConnectionPool();
     std::shared_ptr<Connection> sqlCon = pool->getConnection();
 
     bool verify_flag = false;
