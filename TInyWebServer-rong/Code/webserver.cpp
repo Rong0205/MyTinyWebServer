@@ -37,6 +37,10 @@ WebServer::WebServer(
     }
 }
 
+WebServer::~WebServer(){
+
+}
+
 void WebServer::InitEventMode_(int trigMode){
     listenEvent_ = EPOLLRDHUP;
     connEvent_ = EPOLLONESHOT | EPOLLRDHUP;
