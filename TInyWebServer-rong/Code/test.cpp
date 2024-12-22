@@ -1,9 +1,4 @@
-#include "conpool.h"
-#include "threadpool.h"
-#include "httprequest.h"
-#include "httpresponse.h"
-#include "httpconn.h"
-#include "epoller.h"
+#include <unistd.h>
 #include "webserver.h"
 
 int main(){
@@ -25,13 +20,15 @@ int main(){
     // std::cout << buff.ReadableBytes() << std::endl;
 
     // HttpRequest request;
-    // request.parse(buff);
-    WebServer server(1000, 1, 10, true,
-                     3306, "root", "20010205", "test", 10, 2048, 10, 100,
-                     4, true, 1, 1);
+    // bool is = request.parse(buff);
+    //if(is == true) std::cout << "parse success" << std::endl;
+    //getchar();
 
 
-    
+    WebServer server(2000, 3, 600000, true,
+                     3306, "root", "20010205", "test", 20, 2048, 10, 100,
+                     4, true, 0, 1024);
+    server.Start();    
 
     return 0;
 }
