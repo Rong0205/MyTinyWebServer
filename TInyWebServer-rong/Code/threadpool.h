@@ -28,6 +28,14 @@ public:
         }
         m_condition.notify_all();
     }
+    ~ThreadPool(){
+        {
+            std::cout << "ThreadPool destructor" << std::endl;
+            std::unique_lock<std::mutex> lock(m_queueMutex);
+            m_isStopped = true;
+        }
+        m_condition.notify_all();
+    }
 
 private:
     ThreadPool(int numThreads):m_isStopped(false){
@@ -49,14 +57,7 @@ private:
             }
         }
 
-    ~ThreadPool(){
-        {
-            std::cout << "ThreadPool destructor" << std::endl;
-            std::unique_lock<std::mutex> lock(m_queueMutex);
-            m_isStopped = true;
-        }
-        m_condition.notify_all();
-    }
+
 
     //std::vector<std::thread> m_threads;
     std::queue<std::function<void()>> m_tasks;
