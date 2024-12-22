@@ -107,6 +107,12 @@ void HttpRequest::ParseFromUrlencoded_(){
                 post_[key] = value;
                 LOG_DEBUG("post[%s] = %s", key.c_str(), value.c_str());
                 break;
+            case '\n':
+                value = body_.substr(j, i-j);
+                j = i+1;
+                post_[key] = value;
+                LOG_DEBUG("post[%s] = %s", key.c_str(), value.c_str());
+                break;
             default:
                 break;
         }
@@ -147,7 +153,7 @@ bool HttpRequest::parse(Buffer& buff){
         const char* lineEnd = std::search(buff.Peek(), buff.BeginWriteConst(), CRLF, CRLF + 2);
 
         std:: string line(buff.Peek(), lineEnd);
-        //std::cout<<line<<std::endl;
+        std::cout<<line<<std::endl;
         switch(state_){
             case REQUEST_LINE:
                 if(!ParseRequestLine_(line))
@@ -198,6 +204,8 @@ bool HttpRequest::UserVerifyLogin(const std::string& name, const std::string& pw
 
     if (MYSQL_ROW row = mysql_fetch_row(result)) {
         std::string password(row[0]);
+        LOG_DEBUG("password:%s, size:%d", password, password.size());
+        LOG_DEBUG("pwd:%s, size:%d", pwd, pwd.size());
         if (pwd == password) {
             verify_flag = true;
             LOG_DEBUG("UserVerifyLogin success!!");
