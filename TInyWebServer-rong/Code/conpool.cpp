@@ -69,7 +69,13 @@ void ConnectionPool::init(std::string ip, unsigned short port, std::string usern
 }
 
 ConnectionPool::~ConnectionPool(){
-
+    std::unique_lock<std::mutex> lock(m_queMutex);
+    std::cout<<"ConnectionPool destructor"<<std::endl;
+    while(!m_connectionQue.empty()){
+        Connection* conn = m_connectionQue.front();
+        m_connectionQue.pop();
+        delete conn;
+    }
 }
 
 void ConnectionPool::produceConnTask(){

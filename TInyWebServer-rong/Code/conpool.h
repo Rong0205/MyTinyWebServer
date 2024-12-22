@@ -47,9 +47,11 @@ public:
               std::string passwd, std::string dbname, unsigned int initConns,
               unsigned int maxConns, unsigned int maxIdleTime, unsigned int connectTimeout);
 
+
+    ~ConnectionPool();
 private:
     ConnectionPool();
-    ~ConnectionPool();
+
 
     void produceConnTask();
     void scannerConnTask();
