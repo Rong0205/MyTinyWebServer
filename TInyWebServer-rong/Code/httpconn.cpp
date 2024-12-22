@@ -90,7 +90,7 @@ ssize_t HttpConn::write(int* saveErrno) {
     return len;
 }
 
-bool HttpConn::process(ConnectionPool* pool) {
+bool HttpConn::process() {
     request_.Init();
     if(readBuff_.ReadableBytes() <= 0) {
         LOG_ERROR("Read Buff has no Date!");

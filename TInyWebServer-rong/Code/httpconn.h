@@ -27,7 +27,7 @@ public:
     int getPort() const;                             //获取连接的端口号
     const char* getIP() const;                       //获取连接的IP
     sockaddr_in getAddr() const;                     //获取连接的地址结构体
-    bool process(ConnectionPool* pool);                                  //处理请求过程封装    
+    bool process();                                  //处理请求过程封装    
 
     // 写的总长度
     int ToWriteBytes() { 
