@@ -25,9 +25,9 @@ int main(){
     //getchar();
 
 
-    WebServer server(2000, 3, 600000, true,
-                     3306, "root", "20010205", "test", 20, 2048, 10, 100,
-                     4, true, 0, 1024);
+    WebServer server(2000, 3, 100000, true,
+                     3306, "root", "20010205", "test", 30, 2048, 100000, 100000,
+                     6, true, 3, 1024);
     server.Start();    
 
     return 0;

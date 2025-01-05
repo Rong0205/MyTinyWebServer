@@ -67,6 +67,9 @@ ssize_t HttpConn::read(int* saveErrno) {
 ssize_t HttpConn::write(int* saveErrno) {
     ssize_t len = -1;
     do {
+        char buff[1];
+        ssize_t bytestread = recv(fd_, buff, 1, MSG_PEEK);
+        if(bytestread == 0) break;
         len = writev(fd_, iov_, iovCnt_);   // 将iov的内容写到fd中
         if(len <= 0) {
             *saveErrno = errno;

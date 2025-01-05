@@ -153,7 +153,7 @@ bool HttpRequest::parse(Buffer& buff){
         const char* lineEnd = std::search(buff.Peek(), buff.BeginWriteConst(), CRLF, CRLF + 2);
 
         std:: string line(buff.Peek(), lineEnd);
-        std::cout<<line<<std::endl;
+        //std::cout<<line<<std::endl;
         switch(state_){
             case REQUEST_LINE:
                 if(!ParseRequestLine_(line))

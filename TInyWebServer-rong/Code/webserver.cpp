@@ -15,7 +15,7 @@ WebServer::WebServer(
     HttpConn::srcDir = srcDir_;
 
     //初始化连接组件
-    threadpool_ = ThreadPool::getThreadPool(4);
+    threadpool_ = ThreadPool::getThreadPool(threadNum);
     connPool_ = ConnectionPool::getConnectionPool();
     connPool_->init("127.0.0.1",sqlPort, sqlUser, sqlPwd, dbName, initConns, maxConns, maxIdleTime, connectTimeout);
     InitEventMode_(trigMode);
@@ -171,7 +171,7 @@ void WebServer::DealListen_(){
     do{
         int fd = accept(listenFd_, (struct sockaddr*)&addr, &addrLen);
         if(fd < 0){
-            LOG_ERROR("accept error!");
+            //LOG_ERROR("accept error!");
             break;
         }
         if(HttpConn::userCount >= MAX_FD){
