@@ -191,12 +191,12 @@ void WebServer::CloseConn_(HttpConn* client){
 
 void WebServer::DealWrite_(HttpConn* client){
     ExtentTime_(client);
-    threadpool_->AddTask(std::bind(&WebServer::OnWrite_,this, client));
+    threadpool_->AddTask(&WebServer::OnWrite_,this, client);
 }
 
 void WebServer::DealRead_(HttpConn* client){
     ExtentTime_(client);
-    threadpool_->AddTask(std::bind(&WebServer::OnRead_,this, client));
+    threadpool_->AddTask(&WebServer::OnRead_,this, client);
 }
 
 
